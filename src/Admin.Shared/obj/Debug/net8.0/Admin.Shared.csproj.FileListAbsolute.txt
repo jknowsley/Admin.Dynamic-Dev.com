@@ -9,3 +9,4 @@ C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\refint\Admin.Shared.dll
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.pdb
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\ref\Admin.Shared.dll
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.sourcelink.json

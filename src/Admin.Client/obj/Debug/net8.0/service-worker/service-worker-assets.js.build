@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "9kkyoJhk",
+  "version": "egqgHyqS",
   "assets": [
     {
       "hash": "sha256-G4eynElVr/uvn28LyHze1lPypANvqAmhAy+e2YCEfpk=",
@@ -26,19 +26,19 @@ self.assetsManifest = {
       "url": "_content/MudBlazor/MudBlazor.min.js.map"
     },
     {
-      "hash": "sha256-FzoaBMRWujrcBxWRCCuQt4QgVIeUlfML3xzPt2KOBdE=",
+      "hash": "sha256-OXebaiv3Fe/Fgcm6PiJM+gtpbL/9HpdKlozuwHicC6M=",
       "url": "_framework/Admin.Client.pdb"
     },
     {
-      "hash": "sha256-FKwcWTM4RTZ/+LzPT1tsFKuI4tFrxqkwAfw66BOGguY=",
+      "hash": "sha256-wGIyh/TvL3yGcaOzOzWxS2Gbt64JYkP7zqu1wuMg4sc=",
       "url": "_framework/Admin.Client.wasm"
     },
     {
-      "hash": "sha256-bh5KMoSTqWaHYbUcZ8Kxb++g9WUx7t8kTEj3QYxMqkU=",
+      "hash": "sha256-joteN0uBdmHSTsCyThsvsOd/UPVY/xMS0ejQjioxmMs=",
       "url": "_framework/Admin.Shared.pdb"
     },
     {
-      "hash": "sha256-iT5f3X8UVGpqhvUHIReO6eMJPyZO/kJK6k34H0LbUGU=",
+      "hash": "sha256-/uXGyPa5DcFFrJJSM1hyK7feEAR5OOfAFR7RVJbEs6w=",
       "url": "_framework/Admin.Shared.wasm"
     },
     {
@@ -838,7 +838,7 @@ self.assetsManifest = {
       "url": "_framework/WindowsBase.wasm"
     },
     {
-      "hash": "sha256-8tLXW8dlxtzJlwFBs0VrB6mD4E00f8I0XFIBZlEBn14=",
+      "hash": "sha256-oSMOt/IdFkclkDVtMGl3xoOpEbnpva1Z0s1yWA9tSss=",
       "url": "_framework/blazor.boot.json"
     },
     {

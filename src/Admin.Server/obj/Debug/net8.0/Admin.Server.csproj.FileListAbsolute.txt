@@ -97,3 +97,4 @@ C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Server\obj\Debug\net
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Server\obj\Debug\net8.0\Admin.Server.pdb
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Server\obj\Debug\net8.0\Admin.Server.genruntimeconfig.cache
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Server\obj\Debug\net8.0\ref\Admin.Server.dll
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Server\obj\Debug\net8.0\Admin.Server.sourcelink.json

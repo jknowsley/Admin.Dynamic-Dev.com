@@ -1,0 +1,62 @@
+.conversation-content {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+}
+
+.message {
+    padding: 12px 16px;
+    margin: 8px 0;
+    border-radius: 8px;
+}
+
+.user-message {
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 4px solid #2196F3;
+}
+
+.fred-message {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 4px solid #4CAF50;
+}
+
+.sender {
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.sender.user {
+    background-color: #2196F3;
+    color: white;
+}
+
+.sender.fred {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.code-block {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+    margin: 12px 0;
+}
+
+.inline-code {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+}
+
+::deep p {
+    margin: 8px 0;
+}

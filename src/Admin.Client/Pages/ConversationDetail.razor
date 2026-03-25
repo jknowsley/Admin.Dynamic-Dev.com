@@ -1,0 +1,171 @@
+@page "/conversation/{Id:int}"
+@attribute [Authorize]
+@inject HttpClient Http
+
+<PageTitle>Conversation - @_conversation?.Project?.Name</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (_conversation == null)
+{
+    <MudAlert Severity="Severity.Warning">Conversation not found.</MudAlert>
+}
+else
+{
+    <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4" />
+    
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.caption">Project</MudText>
+                <MudChip T="string" Color="Color.Primary">@_conversation.Project?.Name</MudChip>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.caption">Date</MudText>
+                <MudText Typo="Typo.body1">@_conversation.Date.ToString("dddd, MMMM d, yyyy")</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.caption">Messages</MudText>
+                <MudText Typo="Typo.body1">@_conversation.MessageCount</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudText Typo="Typo.caption">Tokens</MudText>
+                <MudText Typo="Typo.body1">@(_conversation.TokenCount?.ToString("N0") ?? "—")</MudText>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+    
+    @if (!string.IsNullOrEmpty(_conversation.Summary))
+    {
+        <MudPaper Class="pa-4 mb-4">
+            <MudText Typo="Typo.h6" GutterBottom="true">Summary</MudText>
+            <MudText>@_conversation.Summary</MudText>
+        </MudPaper>
+    }
+    
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h6" GutterBottom="true">Conversation</MudText>
+        <div class="conversation-content">
+            @((MarkupString)FormatContent(_conversation.Content))
+        </div>
+    </MudPaper>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private Conversation? _conversation;
+    private bool _loading = true;
+    private List<BreadcrumbItem> _breadcrumbs = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadConversation();
+    }
+    
+    private async Task LoadConversation()
+    {
+        _loading = true;
+        try
+        {
+            _conversation = await Http.GetFromJsonAsync<Conversation>($"api/conversations/{Id}");
+            
+            _breadcrumbs = new List<BreadcrumbItem>
+            {
+                new("Conversations", href: "/conversations"),
+                new(_conversation?.Project?.Name ?? "Unknown", href: null, disabled: true),
+                new(_conversation?.Date.ToString("yyyy-MM-dd") ?? "", href: null, disabled: true)
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading conversation: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    private string FormatContent(string content)
+    {
+        if (string.IsNullOrEmpty(content))
+            return "";
+            
+        // Convert markdown-style formatting to HTML
+        var lines = content.Split('\n');
+        var result = new System.Text.StringBuilder();
+        bool inCodeBlock = false;
+        
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+            
+            // Code blocks
+            if (trimmed.StartsWith("```"))
+            {
+                if (inCodeBlock)
+                {
+                    result.Append("</code></pre>");
+                    inCodeBlock = false;
+                }
+                else
+                {
+                    var lang = trimmed.Length > 3 ? trimmed.Substring(3) : "";
+                    result.Append($"<pre class=\"code-block\"><code class=\"language-{lang}\">");
+                    inCodeBlock = true;
+                }
+                continue;
+            }
+            
+            if (inCodeBlock)
+            {
+                result.Append(System.Web.HttpUtility.HtmlEncode(line) + "\n");
+                continue;
+            }
+            
+            // User/Fred labels
+            if (trimmed.StartsWith("**User:**"))
+            {
+                result.Append($"<div class=\"message user-message\"><span class=\"sender user\">User</span>{FormatInline(trimmed.Substring(9))}</div>");
+            }
+            else if (trimmed.StartsWith("**Fred:**"))
+            {
+                result.Append($"<div class=\"message fred-message\"><span class=\"sender fred\">Fred</span>{FormatInline(trimmed.Substring(9))}</div>");
+            }
+            else if (!string.IsNullOrWhiteSpace(trimmed))
+            {
+                result.Append($"<p>{FormatInline(line)}</p>");
+            }
+            else
+            {
+                result.Append("<br/>");
+            }
+        }
+        
+        if (inCodeBlock)
+            result.Append("</code></pre>");
+            
+        return result.ToString();
+    }
+    
+    private string FormatInline(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return "";
+            
+        // Escape HTML first
+        text = System.Web.HttpUtility.HtmlEncode(text);
+        
+        // Bold
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
+        
+        // Inline code
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"`([^`]+)`", "<code class=\"inline-code\">$1</code>");
+        
+        return text;
+    }
+}

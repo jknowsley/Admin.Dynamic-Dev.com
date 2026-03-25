@@ -55,15 +55,14 @@ public class ConversationsController : ControllerBase
         if (string.IsNullOrWhiteSpace(query))
             return BadRequest("Search query is required");
             
-        // Use SQL Full-Text Search
+        // Use simple LIKE search for broader matching
+        var searchTerm = $"%{query}%";
+        
         var results = await _context.Conversations
-            .FromSqlRaw(@"
-                SELECT c.* 
-                FROM Conversations c
-                INNER JOIN CONTAINSTABLE(Conversations, Content, {0}) AS ft
-                    ON c.Id = ft.[KEY]
-                ORDER BY ft.RANK DESC", query)
             .Include(c => c.Project)
+            .Where(c => EF.Functions.Like(c.Content, searchTerm) || 
+                        EF.Functions.Like(c.Summary ?? "", searchTerm))
+            .OrderByDescending(c => c.Date)
             .Take(50)
             .Select(c => new SearchResult
             {
@@ -88,4 +87,67 @@ public class ConversationsController : ControllerBase
         if (conversation == null) return NotFound();
         return conversation;
     }
+    
+    /// <summary>
+    /// Import or update a conversation from external source (OpenClaw)
+    /// </summary>
+    [HttpPost("import")]
+    public async Task<ActionResult<Conversation>> ImportConversation([FromBody] ConversationImport import)
+    {
+        // Find project by Discord channel ID or name
+        var project = await _context.Projects
+            .FirstOrDefaultAsync(p => p.DiscordChannelId == import.DiscordChannelId || p.Name == import.ProjectName);
+            
+        if (project == null)
+            return BadRequest($"Project not found for channel {import.DiscordChannelId} or name {import.ProjectName}");
+        
+        // Check if conversation exists for this project/date
+        var existing = await _context.Conversations
+            .FirstOrDefaultAsync(c => c.ProjectId == project.Id && c.Date == import.Date);
+            
+        if (existing != null)
+        {
+            // Update existing
+            existing.Content = import.Content;
+            existing.Summary = import.Summary;
+            existing.MessageCount = import.MessageCount;
+            existing.TokenCount = import.TokenCount;
+            existing.UpdatedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            // Create new
+            existing = new Conversation
+            {
+                ProjectId = project.Id,
+                Date = import.Date,
+                Content = import.Content,
+                Summary = import.Summary,
+                MessageCount = import.MessageCount,
+                TokenCount = import.TokenCount,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Conversations.Add(existing);
+        }
+        
+        await _context.SaveChangesAsync();
+        
+        // Reload with project
+        existing = await _context.Conversations
+            .Include(c => c.Project)
+            .FirstOrDefaultAsync(c => c.Id == existing.Id);
+            
+        return existing!;
+    }
+}
+
+public class ConversationImport
+{
+    public string? DiscordChannelId { get; set; }
+    public string? ProjectName { get; set; }
+    public DateOnly Date { get; set; }
+    public string Content { get; set; } = "";
+    public string? Summary { get; set; }
+    public int MessageCount { get; set; }
+    public int? TokenCount { get; set; }
 }

@@ -1,6 +1,7 @@
 @page "/conversations"
 @attribute [Authorize]
 @inject HttpClient Http
+@inject NavigationManager Navigation
 
 <PageTitle>Conversations</PageTitle>
 
@@ -21,6 +22,10 @@
         </MudItem>
         <MudItem xs="12" sm="6" md="4" Class="d-flex align-end">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadConversations">Apply Filter</MudButton>
+            @if (_selectedProjectId.HasValue)
+            {
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="ClearFilter" Class="ml-2">Clear</MudButton>
+            }
         </MudItem>
     </MudGrid>
 </MudPaper>
@@ -35,30 +40,58 @@ else if (_conversations == null || !_conversations.Any())
 }
 else
 {
-    <MudTable Items="@_conversations" Hover="true" Striped="true" Dense="true">
-        <HeaderContent>
-            <MudTh>Date</MudTh>
-            <MudTh>Project</MudTh>
-            <MudTh>Messages</MudTh>
-            <MudTh>Actions</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Date">@context.Date.ToString("yyyy-MM-dd")</MudTd>
-            <MudTd DataLabel="Project">
-                <MudChip T="string" Color="Color.Primary" Size="Size.Small">@context.Project?.Name</MudChip>
-            </MudTd>
-            <MudTd DataLabel="Messages">@context.MessageCount</MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
-                               Color="Color.Primary" 
-                               Size="Size.Small" 
-                               Href="@($"conversation/{context.Id}")" />
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
+    @foreach (var dateGroup in _groupedConversations)
+    {
+        <MudExpansionPanels Class="mb-2">
+            <MudExpansionPanel IsInitiallyExpanded="@(dateGroup.Key == _groupedConversations.First().Key)">
+                <TitleContent>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Class="mr-3" />
+                        <MudText Typo="Typo.h6">@dateGroup.Key.ToString("dddd, MMMM d, yyyy")</MudText>
+                        <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="ml-3">@dateGroup.Count() conversations</MudChip>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    @foreach (var projectGroup in dateGroup.GroupBy(c => c.Project?.Name ?? "Unknown").OrderBy(g => g.Key))
+                    {
+                        <MudPaper Class="pa-3 mb-2" Elevation="0" Style="background-color: var(--mud-palette-background-grey);">
+                            <div class="d-flex align-center mb-2">
+                                <MudIcon Icon="@Icons.Material.Filled.Folder" Size="Size.Small" Color="Color.Primary" Class="mr-2" />
+                                <MudText Typo="Typo.subtitle1"><strong>@projectGroup.Key</strong></MudText>
+                            </div>
+                            
+                            @foreach (var conv in projectGroup)
+                            {
+                                <MudPaper Class="pa-3 mb-2 conversation-item" Elevation="1" @onclick="@(() => NavigateToConversation(conv.Id))" Style="cursor: pointer;">
+                                    <div class="d-flex align-center justify-space-between">
+                                        <div class="d-flex align-center" style="flex: 1; min-width: 0;">
+                                            <MudIcon Icon="@Icons.Material.Filled.Chat" Size="Size.Small" Color="Color.Secondary" Class="mr-2" />
+                                            <MudText Typo="Typo.body2" Style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                @(conv.Summary ?? $"Conversation #{conv.Id}")
+                                            </MudText>
+                                        </div>
+                                        <div class="d-flex align-center flex-shrink-0 ml-2">
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Info">@conv.MessageCount msgs</MudChip>
+                                            @if (conv.TokenCount.HasValue)
+                                            {
+                                                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Class="ml-1">@conv.TokenCount.Value.ToString("N0") tokens</MudChip>
+                                            }
+                                            <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
+                                                           Size="Size.Small" 
+                                                           Color="Color.Primary" 
+                                                           Class="ml-1"
+                                                           OnClick="@(() => NavigateToConversation(conv.Id))"
+                                                           OnClickStopPropagation="true" />
+                                        </div>
+                                    </div>
+                                </MudPaper>
+                            }
+                        </MudPaper>
+                    }
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    }
 }
 
 @code {
@@ -66,6 +99,7 @@ else
     private List<Project>? _projects;
     private int? _selectedProjectId;
     private bool _loading = true;
+    private IEnumerable<IGrouping<DateOnly, Conversation>> _groupedConversations = Enumerable.Empty<IGrouping<DateOnly, Conversation>>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,11 +119,15 @@ else
         _loading = true;
         try
         {
-            var url = "api/conversations";
+            var url = "api/conversations?pageSize=100";
             if (_selectedProjectId.HasValue)
-                url += $"?projectId={_selectedProjectId}";
+                url += $"&projectId={_selectedProjectId}";
                 
             _conversations = await Http.GetFromJsonAsync<List<Conversation>>(url);
+            
+            _groupedConversations = (_conversations ?? new List<Conversation>())
+                .GroupBy(c => c.Date)
+                .OrderByDescending(g => g.Key);
         }
         catch (Exception ex)
         {
@@ -99,5 +137,16 @@ else
         {
             _loading = false;
         }
+    }
+
+    private async Task ClearFilter()
+    {
+        _selectedProjectId = null;
+        await LoadConversations();
+    }
+
+    private void NavigateToConversation(int id)
+    {
+        Navigation.NavigateTo($"/conversation/{id}");
     }
 }

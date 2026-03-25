@@ -1,8 +1,8 @@
 self.assetsManifest = {
-  "version": "egqgHyqS",
+  "version": "hk1erjKg",
   "assets": [
     {
-      "hash": "sha256-G4eynElVr/uvn28LyHze1lPypANvqAmhAy+e2YCEfpk=",
+      "hash": "sha256-32x+FLPLNBzqk9KnhCJS8QcwSLnDi38yNml/ORvtFPU=",
       "url": "Admin.Client.styles.css"
     },
     {
@@ -26,19 +26,19 @@ self.assetsManifest = {
       "url": "_content/MudBlazor/MudBlazor.min.js.map"
     },
     {
-      "hash": "sha256-OXebaiv3Fe/Fgcm6PiJM+gtpbL/9HpdKlozuwHicC6M=",
+      "hash": "sha256-DbNFPvGE1PT9AeBqd5QEtl1ppoGQ2yoaQHud2cZzZW4=",
       "url": "_framework/Admin.Client.pdb"
     },
     {
-      "hash": "sha256-wGIyh/TvL3yGcaOzOzWxS2Gbt64JYkP7zqu1wuMg4sc=",
+      "hash": "sha256-CVOzAW+M1/Wlhyay0B3cVI28udfnCyH63LdCuHZHtoU=",
       "url": "_framework/Admin.Client.wasm"
     },
     {
-      "hash": "sha256-joteN0uBdmHSTsCyThsvsOd/UPVY/xMS0ejQjioxmMs=",
+      "hash": "sha256-eZNABWCbKLtEdQTPH7K2wklXkITeA4cHUhoJxcuBC78=",
       "url": "_framework/Admin.Shared.pdb"
     },
     {
-      "hash": "sha256-/uXGyPa5DcFFrJJSM1hyK7feEAR5OOfAFR7RVJbEs6w=",
+      "hash": "sha256-ytBW7KIYFO/wyQwo7D5bzUAiIpw2QJ7dXITge/qaJiI=",
       "url": "_framework/Admin.Shared.wasm"
     },
     {
@@ -838,7 +838,7 @@ self.assetsManifest = {
       "url": "_framework/WindowsBase.wasm"
     },
     {
-      "hash": "sha256-oSMOt/IdFkclkDVtMGl3xoOpEbnpva1Z0s1yWA9tSss=",
+      "hash": "sha256-pm8Xt0f5XpJFsm30TyZjnlI8FDH2Xtxk6LstZLXIvfE=",
       "url": "_framework/blazor.boot.json"
     },
     {
@@ -894,7 +894,7 @@ self.assetsManifest = {
       "url": "_framework/netstandard.wasm"
     },
     {
-      "hash": "sha256-AyKI5DgL/rBvhI4m+XnxS6bWy2X+KOkox2RsGvDBPKI=",
+      "hash": "sha256-sNQlfQZ43pjMnhUMtf5VRvnmcZwBe6KW/scxueFZLsc=",
       "url": "appsettings.json"
     },
     {
@@ -922,7 +922,15 @@ self.assetsManifest = {
       "url": "icon-512.png"
     },
     {
-      "hash": "sha256-rLvIAVSiFDAKrjMjAl4K4CFWUGEDBE9W7o4VQI12WGo=",
+      "hash": "sha256-2Gn4+B5i+GKzbpXE4oefqG6mjoVcMrY7joP/bMV6j0c=",
+      "url": "images/logo-full.png"
+    },
+    {
+      "hash": "sha256-CexO6ucfkNtFf8IHIAE5xWgLdzt45naR/7Ohms/dcGU=",
+      "url": "images/logo-icon.png"
+    },
+    {
+      "hash": "sha256-I0vElH+6YpL3yz+ey7fKx6vdJcKQilt+3LTzmi66dNA=",
       "url": "index.html"
     },
     {

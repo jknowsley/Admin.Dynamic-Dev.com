@@ -1,0 +1,24 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    
+    <AuthorizeView>
+        <Authorized>
+            <MudNavGroup Title="Conversations" Icon="@Icons.Material.Filled.Chat" Expanded="true">
+                <MudNavLink Href="conversations" Icon="@Icons.Material.Filled.List">Browse</MudNavLink>
+                <MudNavLink Href="search" Icon="@Icons.Material.Filled.Search">Search</MudNavLink>
+            </MudNavGroup>
+            
+            <MudNavLink Href="projects" Icon="@Icons.Material.Filled.Folder">Projects</MudNavLink>
+            
+            <MudNavGroup Title="Future Features" Icon="@Icons.Material.Filled.Extension" Expanded="false">
+                <MudNavLink Href="#" Icon="@Icons.Material.Filled.Task" Disabled="true">Tasks</MudNavLink>
+                <MudNavLink Href="#" Icon="@Icons.Material.Filled.Code" Disabled="true">Code Snippets</MudNavLink>
+                <MudNavLink Href="#" Icon="@Icons.Material.Filled.Gavel" Disabled="true">Decisions</MudNavLink>
+            </MudNavGroup>
+            
+            <MudNavLink Href="sync" Icon="@Icons.Material.Filled.Sync">Sync Data</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+</MudNavMenu>

@@ -1,0 +1,76 @@
+@page "/"
+
+<PageTitle>Admin - Dynamic Dev</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Welcome to Admin Panel</MudText>
+
+<AuthorizeView>
+    <Authorized>
+        <MudText Typo="Typo.h5" Class="mb-4">Hello, @context.User.Identity?.Name!</MudText>
+        
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Conversations</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Chat" Color="Color.Primary" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText>Browse and search through AI conversation history.</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="conversations">Browse</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="search">Search</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Projects</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Folder" Color="Color.Secondary" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText>Manage your projects and their configurations.</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="projects">Manage</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Sync Data</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Sync" Color="Color.Success" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText>Manually trigger data synchronization from OpenClaw.</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="sync">Sync Now</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Info" Class="mt-4">
+            Please <MudLink Href="authentication/login">sign in</MudLink> to access the admin panel.
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>

@@ -1,0 +1,101 @@
+@page "/search"
+@attribute [Authorize]
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Search Conversations</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Search Conversations</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" sm="8" md="6">
+            <MudTextField @bind-Value="_searchQuery" 
+                          Label="Search" 
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          OnKeyUp="HandleKeyUp"
+                          Placeholder="Enter keywords..." />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       OnClick="PerformSearch"
+                       Disabled="@string.IsNullOrWhiteSpace(_searchQuery)">
+                Search
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_searching)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (_hasSearched && (_results == null || !_results.Any()))
+{
+    <MudAlert Severity="Severity.Info">No results found for "@_searchQuery"</MudAlert>
+}
+else if (_results != null && _results.Any())
+{
+    <MudText Typo="Typo.subtitle1" Class="mb-2">Found @_results.Count results</MudText>
+    
+    <MudList T="SearchResult" Dense="true">
+        @foreach (var result in _results)
+        {
+            <MudListItem OnClick="@(() => ViewConversation(result.ConversationId))">
+                <div class="d-flex flex-column">
+                    <div class="d-flex align-center gap-2 mb-1">
+                        <MudChip T="string" Color="Color.Primary" Size="Size.Small">@result.ProjectName</MudChip>
+                        <MudText Typo="Typo.caption">@result.Date.ToString("yyyy-MM-dd")</MudText>
+                    </div>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@result.Snippet</MudText>
+                </div>
+            </MudListItem>
+            <MudDivider />
+        }
+    </MudList>
+}
+
+@code {
+    private string? _searchQuery;
+    private List<SearchResult>? _results;
+    private bool _searching = false;
+    private bool _hasSearched = false;
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery)) return;
+        
+        _searching = true;
+        _hasSearched = true;
+        
+        try
+        {
+            _results = await Http.GetFromJsonAsync<List<SearchResult>>(
+                $"api/conversations/search?query={Uri.EscapeDataString(_searchQuery)}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Search error: {ex.Message}");
+        }
+        finally
+        {
+            _searching = false;
+        }
+    }
+
+    private void ViewConversation(int id)
+    {
+        Navigation.NavigateTo($"conversation/{id}");
+    }
+}

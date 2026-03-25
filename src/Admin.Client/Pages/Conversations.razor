@@ -1,0 +1,103 @@
+@page "/conversations"
+@attribute [Authorize]
+@inject HttpClient Http
+
+<PageTitle>Conversations</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Conversations</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudSelect T="int?" Label="Filter by Project" @bind-Value="_selectedProjectId" Clearable="true">
+                @if (_projects != null)
+                {
+                    @foreach (var project in _projects)
+                    {
+                        <MudSelectItem Value="@((int?)project.Id)">@project.Name</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadConversations">Apply Filter</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (_conversations == null || !_conversations.Any())
+{
+    <MudAlert Severity="Severity.Info">No conversations found.</MudAlert>
+}
+else
+{
+    <MudTable Items="@_conversations" Hover="true" Striped="true" Dense="true">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Project</MudTh>
+            <MudTh>Messages</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date">@context.Date.ToString("yyyy-MM-dd")</MudTd>
+            <MudTd DataLabel="Project">
+                <MudChip T="string" Color="Color.Primary" Size="Size.Small">@context.Project?.Name</MudChip>
+            </MudTd>
+            <MudTd DataLabel="Messages">@context.MessageCount</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
+                               Color="Color.Primary" 
+                               Size="Size.Small" 
+                               Href="@($"conversation/{context.Id}")" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private List<Conversation>? _conversations;
+    private List<Project>? _projects;
+    private int? _selectedProjectId;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _projects = await Http.GetFromJsonAsync<List<Project>>("api/projects");
+            await LoadConversations();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
+
+    private async Task LoadConversations()
+    {
+        _loading = true;
+        try
+        {
+            var url = "api/conversations";
+            if (_selectedProjectId.HasValue)
+                url += $"?projectId={_selectedProjectId}";
+                
+            _conversations = await Http.GetFromJsonAsync<List<Conversation>>(url);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading conversations: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

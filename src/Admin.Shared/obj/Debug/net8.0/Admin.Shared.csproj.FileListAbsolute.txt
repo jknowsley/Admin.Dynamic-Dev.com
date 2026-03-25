@@ -1,0 +1,11 @@
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\bin\Debug\net8.0\Admin.Shared.deps.json
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\bin\Debug\net8.0\Admin.Shared.dll
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\bin\Debug\net8.0\Admin.Shared.pdb
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.AssemblyInfoInputs.cache
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.AssemblyInfo.cs
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.csproj.CoreCompileInputs.cache
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.dll
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\refint\Admin.Shared.dll
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\Admin.Shared.pdb
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Shared\obj\Debug\net8.0\ref\Admin.Shared.dll

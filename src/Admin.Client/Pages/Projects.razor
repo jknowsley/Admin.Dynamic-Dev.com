@@ -1,0 +1,149 @@
+@page "/projects"
+@attribute [Authorize]
+@inject HttpClient Http
+
+<PageTitle>Projects</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Projects</MudText>
+
+<MudButton Variant="Variant.Filled" 
+           Color="Color.Primary" 
+           StartIcon="@Icons.Material.Filled.Add"
+           Class="mb-4"
+           OnClick="ShowAddDialog">
+    Add Project
+</MudButton>
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (_projects == null || !_projects.Any())
+{
+    <MudAlert Severity="Severity.Info">No projects found.</MudAlert>
+}
+else
+{
+    <MudGrid>
+        @foreach (var project in _projects)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@project.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                           Color="Color.Default" 
+                                           OnClick="@(() => ShowEditDialog(project))" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText>@(project.Description ?? "No description")</MudText>
+                        @if (!string.IsNullOrEmpty(project.DiscordChannelId))
+                        {
+                            <MudText Typo="Typo.caption" Class="mt-2">
+                                Discord: @project.DiscordChannelId
+                            </MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+<MudDialog @bind-Visible="_dialogVisible" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_isEdit ? "Edit" : "Add") Project</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_editProject.Name" Label="Name" Required="true" Class="mb-4" />
+        <MudTextField @bind-Value="_editProject.Description" Label="Description" Lines="3" Class="mb-4" />
+        <MudTextField @bind-Value="_editProject.DiscordChannelId" Label="Discord Channel ID" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SaveProject">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<Project>? _projects;
+    private bool _loading = true;
+    private bool _dialogVisible = false;
+    private bool _isEdit = false;
+    private Project _editProject = new();
+    private DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Small, FullWidth = true };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private async Task LoadProjects()
+    {
+        _loading = true;
+        try
+        {
+            _projects = await Http.GetFromJsonAsync<List<Project>>("api/projects");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading projects: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void ShowAddDialog()
+    {
+        _isEdit = false;
+        _editProject = new Project();
+        _dialogVisible = true;
+    }
+
+    private void ShowEditDialog(Project project)
+    {
+        _isEdit = true;
+        _editProject = new Project
+        {
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            DiscordChannelId = project.DiscordChannelId,
+            IsActive = project.IsActive
+        };
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog()
+    {
+        _dialogVisible = false;
+    }
+
+    private async Task SaveProject()
+    {
+        try
+        {
+            if (_isEdit)
+            {
+                await Http.PutAsJsonAsync($"api/projects/{_editProject.Id}", _editProject);
+            }
+            else
+            {
+                await Http.PostAsJsonAsync("api/projects", _editProject);
+            }
+            
+            _dialogVisible = false;
+            await LoadProjects();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving project: {ex.Message}");
+        }
+    }
+}

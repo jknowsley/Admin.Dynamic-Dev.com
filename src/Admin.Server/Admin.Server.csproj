@@ -14,7 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Admin.Shared\Admin.Shared.csproj" />
+    <ProjectReference Include="..\Admin.Client\Admin.Client.csproj" />
   </ItemGroup>
 
 </Project>

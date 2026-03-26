@@ -78,3 +78,7 @@ build_metadata.AdditionalFiles.CssScope = b-fw210qiegp
 [C:/Users/jknow/source/repos/Admin.Dynamic-Dev.com/src/Admin.Client/Pages/ConversationDetail.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udmVyc2F0aW9uRGV0YWlsLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-26izjb6rci
+
+[C:/Users/jknow/source/repos/Admin.Dynamic-Dev.com/src/Admin.Client/Pages/TaskBoard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGFza0JvYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-vuxhwwxvjr

@@ -1,0 +1,2 @@
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\publish-client\emcc-props.json
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\publish-client\web.config

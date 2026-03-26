@@ -1094,9 +1094,10 @@ C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\Admin.Client.pdb
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\ref\Admin.Client.dll
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\Admin.Client.sourcelink.json
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\3wllz5emlq-ueel7757dc.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\phbi93vjwk-pw2fzpxvg4.gz
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\scopedcss\Pages\ConversationDetail.razor.rz.scp.css
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\pwfltmowz4-nsvgosyir9.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\he4crsrub3-ra74jvog5x.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\bngq2u25jz-2pqel78ncn.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\scopedcss\Pages\TaskBoard.razor.rz.scp.css
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\3wllz5emlq-pjt3azl6kk.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\phbi93vjwk-vi65788ker.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\pwfltmowz4-4pzap11suc.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\he4crsrub3-objzoym169.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\bngq2u25jz-a2uak89rdc.gz

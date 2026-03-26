@@ -20,7 +20,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "https://localhost:5001",
-                "https://admin.dynamic-dev.com")
+                "http://localhost:5001",
+                "https://admin.dynamic-dev.com",
+                "https://admin-dynamicdev.azurewebsites.net")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -39,10 +41,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowBlazor");
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

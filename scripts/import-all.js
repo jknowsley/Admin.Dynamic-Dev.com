@@ -21,7 +21,7 @@ const CHANNELS = {
     '1476208077979123783': { name: 'Logenix', projectId: 5 },
     '1476208047390199980': { name: 'Aegis', projectId: 6 },
     '1476196683032563824': { name: 'General', projectId: 1 },
-    '1486436449829261412': { name: 'OpenClaw', projectId: 8 },
+    '1486436449829261412': { name: 'Admin Panel', projectId: 11 },
 };
 
 // Admin Panel API
@@ -161,12 +161,17 @@ async function importConversation(projectId, date, content, summary, messageCoun
     });
 }
 
-// Execute SQL via sqlcmd
+// Execute SQL via sqlcmd using temp file (avoids command line length limits)
 const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 function executeSql(sql) {
     const sqlcmd = '"C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\SQLCMD.EXE"';
+    const tmpFile = path.join(os.tmpdir(), 'import-sql-tmp.sql');
     try {
-        execSync(`${sqlcmd} -S Dynamicdev.database.windows.net -d Dynamicdev -U sysdba -P "dB2020!@#$" -C -Q "${sql.replace(/"/g, '\\"')}"`, {
+        fs.writeFileSync(tmpFile, sql, 'utf8');
+        execSync(`${sqlcmd} -S Dynamicdev.database.windows.net -d Dynamicdev -U sysdba -P "dB2020!@#$" -C -i "${tmpFile}"`, {
             stdio: 'pipe',
             timeout: 60000
         });
@@ -174,6 +179,8 @@ function executeSql(sql) {
     } catch (e) {
         console.error(`  SQL Error: ${e.message.substring(0, 200)}`);
         return false;
+    } finally {
+        try { fs.unlinkSync(tmpFile); } catch(e) {}
     }
 }
 
@@ -186,9 +193,8 @@ function escapeSql(str) {
 async function main() {
     console.log('=== Discord Historical Import ===\n');
 
-    // First, clear existing data
-    console.log('Clearing existing sample/partial data...');
-    executeSql("DELETE FROM [dbo].[Conversations]");
+    // Don't clear - use upsert logic instead
+    console.log('Starting import (upsert mode - will not delete existing data)...');
 
     for (const [channelId, channel] of Object.entries(CHANNELS)) {
         console.log(`\nImporting #${channel.name}...`);

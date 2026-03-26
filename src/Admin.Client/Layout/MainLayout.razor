@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
 <MudLayout>
     <MudAppBar Elevation="1">
@@ -9,7 +10,7 @@
         <AuthorizeView>
             <Authorized>
                 <MudText Class="mr-4">@context.User.Identity?.Name</MudText>
-                <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="authentication/logout">Logout</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="BeginLogout">Logout</MudButton>
             </Authorized>
             <NotAuthorized>
                 <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="authentication/login">Login</MudButton>
@@ -32,5 +33,10 @@
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private void BeginLogout()
+    {
+        Navigation.NavigateToLogout("authentication/logout");
     }
 }

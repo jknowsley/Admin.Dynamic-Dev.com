@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Admin.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d3232c73fd52f241032f90e96a8c66a375a36fa4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d64f932dbdb64149d2e7b83e6ee193bde97c0408")]
 [assembly: System.Reflection.AssemblyProductAttribute("Admin.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Admin.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

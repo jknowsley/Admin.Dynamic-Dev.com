@@ -1,8 +1,8 @@
 self.assetsManifest = {
-  "version": "UhjC8Aqa",
+  "version": "8IjfOdWu",
   "assets": [
     {
-      "hash": "sha256-32x+FLPLNBzqk9KnhCJS8QcwSLnDi38yNml/ORvtFPU=",
+      "hash": "sha256-s7DBRszgNiKYOSbIVllePkqfEaReCJosokmsnSi7l24=",
       "url": "Admin.Client.styles.css"
     },
     {
@@ -26,19 +26,19 @@ self.assetsManifest = {
       "url": "_content/MudBlazor/MudBlazor.min.js.map"
     },
     {
-      "hash": "sha256-C06uGrLDJkm6Oxcsr6ohz7vF9sLkEF73Cj6lWBr+ETQ=",
+      "hash": "sha256-VOciE5W7oNxLg5MkKLhWI8PW+tBVMKOSh7CTWyew/SE=",
       "url": "_framework/Admin.Client.pdb"
     },
     {
-      "hash": "sha256-zMxehk/xdOKLCH+E97nNNs7q1Ae2CWIsipmpPGaJGfo=",
+      "hash": "sha256-uFAH5FZMjEPEfWTYFhet+UE0aobz7RQYPVHKGkdyk4s=",
       "url": "_framework/Admin.Client.wasm"
     },
     {
-      "hash": "sha256-EsKJejt0YRryEiCpAu/VFyaV/YwXKyGr9onIPkTEUkA=",
+      "hash": "sha256-b/itlJOpi1szKroMjdI2LNXFkgx67H3MVe5zz/q8JuE=",
       "url": "_framework/Admin.Shared.pdb"
     },
     {
-      "hash": "sha256-ehZhrKzf/+RViCT9K7yvrDz9wxqFv+4Rq8Unbe2AWLQ=",
+      "hash": "sha256-f67aFsG3DlkF96NEES3l5cdJFzK8O5fKoa2vNjBupsc=",
       "url": "_framework/Admin.Shared.wasm"
     },
     {
@@ -838,7 +838,7 @@ self.assetsManifest = {
       "url": "_framework/WindowsBase.wasm"
     },
     {
-      "hash": "sha256-IqWmqVsFVNqYFND680waH60knFfEIEOi89m+fnE9c0E=",
+      "hash": "sha256-KK3bz16YuYzbuBtDNOHS8cm1dveoLIWSKz9ipMD+Brs=",
       "url": "_framework/blazor.boot.json"
     },
     {

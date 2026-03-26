@@ -11,7 +11,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // Add MudBlazor
 builder.Services.AddMudServices();
 
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:5002";
+var configuredUrl = builder.Configuration["ApiBaseUrl"];
+var apiBaseUrl = string.IsNullOrEmpty(configuredUrl) 
+    ? builder.HostEnvironment.BaseAddress 
+    : configuredUrl;
 
 // Configure HttpClient with auth
 builder.Services.AddHttpClient("Admin.API", client =>
@@ -22,7 +25,7 @@ builder.Services.AddHttpClient("Admin.API", client =>
 {
     var handler = sp.GetRequiredService<AuthorizationMessageHandler>()
         .ConfigureHandler(
-            authorizedUrls: new[] { apiBaseUrl },
+            authorizedUrls: new[] { apiBaseUrl.TrimEnd('/') },
             scopes: new[] { "api://dda42336-75a5-44df-b841-fb7e1302527d/access_as_user" });
     return handler;
 });

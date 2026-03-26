@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "q5Jjtdnc",
+  "version": "Q0KgBzoO",
   "assets": [
     {
       "hash": "sha256-s7DBRszgNiKYOSbIVllePkqfEaReCJosokmsnSi7l24=",
@@ -26,11 +26,11 @@ self.assetsManifest = {
       "url": "_content/MudBlazor/MudBlazor.min.js.map"
     },
     {
-      "hash": "sha256-uFAH5FZMjEPEfWTYFhet+UE0aobz7RQYPVHKGkdyk4s=",
+      "hash": "sha256-dVws7Yresv0rLf75ahfVOn01stQtGxWeJ9iQ5ojJ1jY=",
       "url": "_framework/Admin.Client.wasm"
     },
     {
-      "hash": "sha256-f67aFsG3DlkF96NEES3l5cdJFzK8O5fKoa2vNjBupsc=",
+      "hash": "sha256-zVizEhxhFIY7toxTD0BzMQRhSaNAQKW2AgRmmpEcGhc=",
       "url": "_framework/Admin.Shared.wasm"
     },
     {
@@ -50,7 +50,7 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.AspNetCore.Components.Web.wasm"
     },
     {
-      "hash": "sha256-Jt6TUMOT7Rq5N1+y+y6tg4GHcpYYi1lyPkwnPz5Oj8w=",
+      "hash": "sha256-hJmI+A5vtBbyPsZ8Rhkv/yoAV2U6Yg4aWcKt/bM4uIE=",
       "url": "_framework/Microsoft.AspNetCore.Components.WebAssembly.Authentication.wasm"
     },
     {
@@ -230,7 +230,7 @@ self.assetsManifest = {
       "url": "_framework/System.Runtime.Numerics.wasm"
     },
     {
-      "hash": "sha256-NJLd3rUGr4nsgGNe4K2t4cu+Q8/YEmi0CQ8iUKTJxMU=",
+      "hash": "sha256-LhFPLsQzKUzxxrTtn+tW+864S+acrWpYFZ4ZvPoAtCQ=",
       "url": "_framework/System.Runtime.wasm"
     },
     {
@@ -258,7 +258,7 @@ self.assetsManifest = {
       "url": "_framework/System.wasm"
     },
     {
-      "hash": "sha256-I0bvex9EO9fsVjuv0HWz1NixcC8Sml+paWytAShq6j4=",
+      "hash": "sha256-ZqohT+HyHdSHfXec1UQAKFB3japbf2sqmgIjZU8yi34=",
       "url": "_framework/blazor.boot.json"
     },
     {

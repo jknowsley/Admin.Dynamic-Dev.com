@@ -1096,8 +1096,8 @@ C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\Admin.Client.sourcelink.json
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\scopedcss\Pages\ConversationDetail.razor.rz.scp.css
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\scopedcss\Pages\TaskBoard.razor.rz.scp.css
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\3wllz5emlq-pjt3azl6kk.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\phbi93vjwk-vi65788ker.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\pwfltmowz4-4pzap11suc.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\he4crsrub3-objzoym169.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\bngq2u25jz-a2uak89rdc.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\3wllz5emlq-861uyvsmiv.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\phbi93vjwk-3pb586jb6y.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\pwfltmowz4-t1ohe54jm4.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\he4crsrub3-ove4a1zgqc.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Debug\net8.0\compressed\bngq2u25jz-0x9ixvvjv5.gz

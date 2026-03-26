@@ -1,5 +1,7 @@
 @inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
 
 <MudLayout>
     <MudAppBar Elevation="1">
@@ -35,8 +37,9 @@
         _drawerOpen = !_drawerOpen;
     }
 
-    private void BeginLogout()
+    private async Task BeginLogout()
     {
-        Navigation.NavigateToLogout("authentication/logout");
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
     }
 }

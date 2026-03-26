@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Admin.Client")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+61a4da6670ad567b2e35f0b784d3fac12415bb3f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a46ef868f3151c67a7f76db4d1b3346c36d2f5a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Admin.Client")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Admin.Client")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "zTLDcovC",
+  "version": "+ZqnHrtg",
   "assets": [
     {
       "hash": "sha256-s7DBRszgNiKYOSbIVllePkqfEaReCJosokmsnSi7l24=",
@@ -26,11 +26,11 @@ self.assetsManifest = {
       "url": "_content/MudBlazor/MudBlazor.min.js.map"
     },
     {
-      "hash": "sha256-RNLgLWm/+WL4gVWHoiKDNewo/r8nXG1ts/7YwWGJIgI=",
+      "hash": "sha256-rDFvEHvW+zR7lAZj9HxzVpUo1C9SWrt3HGJ5JGla8og=",
       "url": "_framework/Admin.Client.wasm"
     },
     {
-      "hash": "sha256-x7ykkFszeZ2v3mi+e0+r5cKtTyWTQWZsq0V0xqy339U=",
+      "hash": "sha256-e+qN/+32awrAZ30uIxtHira+hFrzVuO9fMVyyFMMZb0=",
       "url": "_framework/Admin.Shared.wasm"
     },
     {
@@ -46,7 +46,7 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.AspNetCore.Components.Forms.wasm"
     },
     {
-      "hash": "sha256-8l3wyTo5J4F6UMzyvBXuzuz5fLYtqDf5KVu4e2Z3IxQ=",
+      "hash": "sha256-thQ+uwFNhAkGSI7bMiPBaX20sAa8LWCMwiW2oYqzPeU=",
       "url": "_framework/Microsoft.AspNetCore.Components.Web.wasm"
     },
     {
@@ -58,7 +58,7 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.AspNetCore.Components.WebAssembly.wasm"
     },
     {
-      "hash": "sha256-KlR3Z9cImG7mcoCwXHvPA2F6L8uSwknfh0T0LzZXgUE=",
+      "hash": "sha256-FS/a7Cr1FeXrzchC7CwWqSCHgeUkD1IaM3WMdwcxXGM=",
       "url": "_framework/Microsoft.AspNetCore.Components.wasm"
     },
     {
@@ -138,7 +138,7 @@ self.assetsManifest = {
       "url": "_framework/Microsoft.JSInterop.wasm"
     },
     {
-      "hash": "sha256-tFeuMUctwP7R4nMRu4qB5ChMoL5ayxwAGoQiDB4yjB0=",
+      "hash": "sha256-YQm33LJ+SewKh/kt1oq2WP5MklWRUbRihrIDnphpoB8=",
       "url": "_framework/MudBlazor.wasm"
     },
     {
@@ -214,7 +214,7 @@ self.assetsManifest = {
       "url": "_framework/System.ObjectModel.wasm"
     },
     {
-      "hash": "sha256-YW0FrueYBBNi39RziniRphq9i7+7qTSNoePrBVXcIIQ=",
+      "hash": "sha256-J/cUaobvZm4d9M3Ml8cIzzSj+J8dJI9cI3/9tuZ4d9g=",
       "url": "_framework/System.Private.CoreLib.wasm"
     },
     {
@@ -258,7 +258,7 @@ self.assetsManifest = {
       "url": "_framework/System.wasm"
     },
     {
-      "hash": "sha256-hgQje9bOlP7mi8jIcxU3Tuq84JtZZsiOLf6Lwpiys20=",
+      "hash": "sha256-EsgCxSoB3U644J2H3SjMC4NJpJz6wbHszzk4tWW1XjY=",
       "url": "_framework/blazor.boot.json"
     },
     {

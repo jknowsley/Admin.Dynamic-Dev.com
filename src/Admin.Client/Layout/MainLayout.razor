@@ -12,11 +12,16 @@
         <MudSpacer />
         <AuthorizeView>
             <Authorized>
-                <MudText Class="mr-4">@context.User.Identity?.Name</MudText>
-                <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="BeginLogout">Logout</MudButton>
+                <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                    <MudMenuItem Disabled="true">
+                        <MudText Typo="Typo.body2"><strong>@context.User.Identity?.Name</strong></MudText>
+                    </MudMenuItem>
+                    <MudDivider />
+                    <MudMenuItem OnClick="BeginLogout" Icon="@Icons.Material.Filled.Logout">Logout</MudMenuItem>
+                </MudMenu>
             </Authorized>
             <NotAuthorized>
-                <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="authentication/login">Login</MudButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Href="authentication/login" />
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>

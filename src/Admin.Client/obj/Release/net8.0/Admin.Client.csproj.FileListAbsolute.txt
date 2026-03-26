@@ -1096,8 +1096,8 @@ C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\n
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\Admin.Client.pdb
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\ref\Admin.Client.dll
 C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\scopedcss\Pages\TaskBoard.razor.rz.scp.css
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\3wllz5emlq-1dje8tywij.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\phbi93vjwk-pc0akjb3k6.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\pwfltmowz4-g7657nmgw5.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\he4crsrub3-dox80sd43w.gz
-C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\bngq2u25jz-k42cxm6fto.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\3wllz5emlq-it2e8sev0f.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\phbi93vjwk-cx968qysyy.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\pwfltmowz4-i020m8a7kx.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\he4crsrub3-bde9mqf5m9.gz
+C:\Users\jknow\source\repos\Admin.Dynamic-Dev.com\src\Admin.Client\obj\Release\net8.0\compressed\bngq2u25jz-xuxrpc4rh3.gz

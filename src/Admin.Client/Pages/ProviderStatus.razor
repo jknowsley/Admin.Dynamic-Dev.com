@@ -80,6 +80,11 @@ else
         try
         {
             _providers = await Http.GetFromJsonAsync<List<ProviderUsageStats>>("api/provider-status") ?? new();
+
+            if (_providers.Count == 0)
+            {
+                _error = "The API returned no provider rows. That usually means the server couldn't read the OpenClaw session history on the host.";
+            }
         }
         catch (Exception ex)
         {

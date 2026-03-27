@@ -128,7 +128,7 @@ public class ProviderStatusController : ControllerBase
             provider.IsHealthy = provider.Status is "Healthy" or "Active";
         }
 
-        return Ok(providers.Values.ToList());
+        return Ok(providers.Values.OrderBy(p => p.DisplayName).ToList());
     }
 
     private static ProviderUsageStats NewProvider(string provider, string displayName) => new()

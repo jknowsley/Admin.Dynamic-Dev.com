@@ -1,0 +1,11 @@
+.provider-stats {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 1rem;
+    align-items: start;
+}
+
+.provider-stats :deep(.mud-typography:nth-child(2n)) {
+    justify-self: end;
+    text-align: right;
+}

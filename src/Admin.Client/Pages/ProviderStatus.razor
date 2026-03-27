@@ -33,15 +33,30 @@ else
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <div class="d-flex flex-column ga-1">
-                            <MudText Typo="Typo.body2">Requests: @provider.Requests</MudText>
-                            <MudText Typo="Typo.body2">Errors: @provider.Errors</MudText>
-                            <MudText Typo="Typo.body2">Total Tokens: @FormatNumber(provider.TotalTokens)</MudText>
-                            <MudText Typo="Typo.body2">Input Tokens: @FormatNumber(provider.InputTokens)</MudText>
-                            <MudText Typo="Typo.body2">Output Tokens: @FormatNumber(provider.OutputTokens)</MudText>
-                            <MudText Typo="Typo.body2">Cache Read: @FormatNumber(provider.CacheReadTokens)</MudText>
-                            <MudText Typo="Typo.body2">Cost: @provider.TotalCost.ToString("C")</MudText>
-                            <MudText Typo="Typo.body2">Last Used: @FormatTimestamp(provider.LastUsed)</MudText>
+                        <div class="provider-stats">
+                            <MudText Typo="Typo.body2">Requests</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@provider.Requests</MudText>
+
+                            <MudText Typo="Typo.body2">Errors</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@provider.Errors</MudText>
+
+                            <MudText Typo="Typo.body2">Total Tokens</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@FormatNumber(provider.TotalTokens)</MudText>
+
+                            <MudText Typo="Typo.body2">Input Tokens</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@FormatNumber(provider.InputTokens)</MudText>
+
+                            <MudText Typo="Typo.body2">Output Tokens</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@FormatNumber(provider.OutputTokens)</MudText>
+
+                            <MudText Typo="Typo.body2">Cache Read</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@FormatNumber(provider.CacheReadTokens)</MudText>
+
+                            <MudText Typo="Typo.body2">Cost</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@provider.TotalCost.ToString("C")</MudText>
+
+                            <MudText Typo="Typo.body2">Last Used</MudText>
+                            <MudText Typo="Typo.body2" Align="Align.Right">@FormatTimestamp(provider.LastUsed)</MudText>
                         </div>
 
                         @if (provider.Models.Any())

@@ -9,9 +9,16 @@
     justify-content: space-between;
     align-items: baseline;
     gap: 1rem;
+    width: 100%;
 }
 
-.provider-stat-row :deep(.mud-typography:last-child) {
-    text-align: right;
+.provider-stat-label {
+    flex: 1 1 auto;
+}
+
+.provider-stat-value {
+    flex: 0 0 auto;
     margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
 }

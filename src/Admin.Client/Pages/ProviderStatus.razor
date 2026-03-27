@@ -74,9 +74,9 @@ else
                             <MudText Typo="Typo.subtitle2">Models</MudText>
                             @foreach (var model in provider.Models.Take(3))
                             {
-                                <div class="d-flex justify-space-between">
-                                    <MudText Typo="Typo.body2">@model.Name</MudText>
-                                    <MudText Typo="Typo.body2">@model.Requests</MudText>
+                                <div class="provider-stat-row">
+                                    <MudText Typo="Typo.body2" Class="provider-stat-label">@model.Name</MudText>
+                                    <MudText Typo="Typo.body2" Class="provider-stat-value">@model.Requests</MudText>
                                 </div>
                             }
                         }

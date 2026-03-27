@@ -32,67 +32,61 @@ function newProvider(provider, displayName) {
   };
 }
 
-const providers = {
-  anthropic: newProvider('anthropic', 'Claude'),
-  openai: newProvider('openai', 'GPT'),
-  google: newProvider('google', 'Gemini')
-};
-
-if (!fs.existsSync(sessionsDir)) {
-  console.error(`Sessions directory not found: ${sessionsDir}`);
-  process.exit(1);
+function emptyProviders() {
+  return {
+    anthropic: newProvider('anthropic', 'Claude'),
+    openai: newProvider('openai', 'GPT'),
+    google: newProvider('google', 'Gemini')
+  };
 }
 
-for (const file of fs.readdirSync(sessionsDir).filter(f => f.endsWith('.jsonl'))) {
-  const fullPath = path.join(sessionsDir, file);
-  const lines = fs.readFileSync(fullPath, 'utf8').split(/\r?\n/).filter(Boolean);
+function getRanges() {
+  const now = new Date();
+  const startToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const endNow = now;
+  const startLast7 = new Date(startToday);
+  startLast7.setUTCDate(startLast7.getUTCDate() - 6);
+  const startYear = new Date(Date.UTC(2026, 0, 1));
 
-  for (const line of lines) {
-    let row;
-    try {
-      row = JSON.parse(line);
-    } catch {
-      continue;
-    }
+  return [
+    { key: 'today', start: startToday, end: endNow },
+    { key: 'last7days', start: startLast7, end: endNow },
+    { key: 'daterange', start: startYear, end: endNow }
+  ];
+}
 
-    if (row.type !== 'message' || !row.message) continue;
-    const msg = row.message;
-    if (msg.role !== 'assistant') continue;
+function applyUsage(bucket, row) {
+  const msg = row.message;
+  bucket.requests++;
 
-    const bucket = providers[msg.provider];
-    if (!bucket) continue;
+  if (row.timestamp && (!bucket.lastUsed || row.timestamp > bucket.lastUsed)) {
+    bucket.lastUsed = row.timestamp;
+  }
 
-    bucket.requests++;
+  if (msg.model) {
+    bucket.models[msg.model] = (bucket.models[msg.model] || 0) + 1;
+  }
 
-    if (row.timestamp && (!bucket.lastUsed || row.timestamp > bucket.lastUsed)) {
-      bucket.lastUsed = row.timestamp;
-    }
+  let isError = false;
+  if (msg.stopReason === 'error') isError = true;
+  if (msg.errorMessage) {
+    isError = true;
+    bucket.lastError = String(msg.errorMessage).slice(0, 2000);
+  }
+  if (isError) bucket.errors++;
 
-    if (msg.model) {
-      bucket.models[msg.model] = (bucket.models[msg.model] || 0) + 1;
-    }
-
-    let isError = false;
-    if (msg.stopReason === 'error') isError = true;
-    if (msg.errorMessage) {
-      isError = true;
-      bucket.lastError = String(msg.errorMessage).slice(0, 2000);
-    }
-    if (isError) bucket.errors++;
-
-    const usage = msg.usage || {};
-    bucket.inputTokens += usage.input || 0;
-    bucket.outputTokens += usage.output || 0;
-    bucket.cacheReadTokens += usage.cacheRead || 0;
-    bucket.cacheWriteTokens += usage.cacheWrite || 0;
-    bucket.totalTokens += usage.totalTokens || 0;
-    if (usage.cost && typeof usage.cost.total === 'number') {
-      bucket.totalCost += usage.cost.total;
-    }
+  const usage = msg.usage || {};
+  bucket.inputTokens += usage.input || 0;
+  bucket.outputTokens += usage.output || 0;
+  bucket.cacheReadTokens += usage.cacheRead || 0;
+  bucket.cacheWriteTokens += usage.cacheWrite || 0;
+  bucket.totalTokens += usage.totalTokens || 0;
+  if (usage.cost && typeof usage.cost.total === 'number') {
+    bucket.totalCost += usage.cost.total;
   }
 }
 
-for (const provider of Object.values(providers)) {
+function finalizeProvider(provider) {
   if (provider.requests === 0) {
     provider.status = 'No data';
     provider.isHealthy = false;
@@ -111,34 +105,85 @@ function sqlEscape(value) {
   return `N'${String(value).replace(/'/g, "''")}'`;
 }
 
-const statements = Object.values(providers).map(p => {
-  const modelsJson = JSON.stringify(Object.entries(p.models)
-    .map(([name, requests]) => ({ name, requests }))
-    .sort((a, b) => b.requests - a.requests));
+function iso(dt) {
+  return dt.toISOString();
+}
 
-  return `MERGE [dbo].[ProviderUsageSnapshots] AS target
-USING (SELECT ${sqlEscape(p.provider)} AS Provider) AS source
-ON target.Provider = source.Provider
+if (!fs.existsSync(sessionsDir)) {
+  console.error(`Sessions directory not found: ${sessionsDir}`);
+  process.exit(1);
+}
+
+const ranges = getRanges();
+const aggregateByRange = Object.fromEntries(ranges.map(r => [r.key, emptyProviders()]));
+
+for (const file of fs.readdirSync(sessionsDir).filter(f => f.endsWith('.jsonl'))) {
+  const fullPath = path.join(sessionsDir, file);
+  const lines = fs.readFileSync(fullPath, 'utf8').split(/\r?\n/).filter(Boolean);
+
+  for (const line of lines) {
+    let row;
+    try {
+      row = JSON.parse(line);
+    } catch {
+      continue;
+    }
+
+    if (row.type !== 'message' || !row.message) continue;
+    if (row.message.role !== 'assistant') continue;
+    if (!aggregateByRange.today[row.message.provider]) continue;
+    if (!row.timestamp) continue;
+
+    const ts = new Date(row.timestamp);
+    if (Number.isNaN(ts.getTime())) continue;
+
+    for (const range of ranges) {
+      if (ts >= range.start && ts <= range.end) {
+        applyUsage(aggregateByRange[range.key][row.message.provider], row);
+      }
+    }
+  }
+}
+
+for (const range of ranges) {
+  for (const provider of Object.values(aggregateByRange[range.key])) {
+    finalizeProvider(provider);
+  }
+}
+
+const statements = [];
+for (const range of ranges) {
+  for (const provider of Object.values(aggregateByRange[range.key])) {
+    const modelsJson = JSON.stringify(Object.entries(provider.models)
+      .map(([name, requests]) => ({ name, requests }))
+      .sort((a, b) => b.requests - a.requests));
+
+    statements.push(`MERGE [dbo].[ProviderUsageSnapshots] AS target
+USING (SELECT ${sqlEscape(provider.provider)} AS Provider, ${sqlEscape(range.key)} AS RangeKey) AS source
+ON target.Provider = source.Provider AND target.RangeKey = source.RangeKey
 WHEN MATCHED THEN UPDATE SET
-    DisplayName = ${sqlEscape(p.displayName)},
-    Status = ${sqlEscape(p.status)},
-    IsHealthy = ${p.isHealthy ? 1 : 0},
-    Requests = ${p.requests},
-    Errors = ${p.errors},
-    InputTokens = ${p.inputTokens},
-    OutputTokens = ${p.outputTokens},
-    CacheReadTokens = ${p.cacheReadTokens},
-    CacheWriteTokens = ${p.cacheWriteTokens},
-    TotalTokens = ${p.totalTokens},
-    TotalCost = ${p.totalCost.toFixed(6)},
-    LastUsed = ${sqlEscape(p.lastUsed)},
-    LastError = ${sqlEscape(p.lastError)},
+    DisplayName = ${sqlEscape(provider.displayName)},
+    Status = ${sqlEscape(provider.status)},
+    IsHealthy = ${provider.isHealthy ? 1 : 0},
+    Requests = ${provider.requests},
+    Errors = ${provider.errors},
+    InputTokens = ${provider.inputTokens},
+    OutputTokens = ${provider.outputTokens},
+    CacheReadTokens = ${provider.cacheReadTokens},
+    CacheWriteTokens = ${provider.cacheWriteTokens},
+    TotalTokens = ${provider.totalTokens},
+    TotalCost = ${provider.totalCost.toFixed(6)},
+    LastUsed = ${sqlEscape(provider.lastUsed)},
+    LastError = ${sqlEscape(provider.lastError)},
     ModelsJson = ${sqlEscape(modelsJson)},
-    SnapshotAtUtc = SYSUTCDATETIME()
+    SnapshotAtUtc = SYSUTCDATETIME(),
+    RangeStartUtc = ${sqlEscape(iso(range.start))},
+    RangeEndUtc = ${sqlEscape(iso(range.end))}
 WHEN NOT MATCHED THEN
-    INSERT (Provider, DisplayName, Status, IsHealthy, Requests, Errors, InputTokens, OutputTokens, CacheReadTokens, CacheWriteTokens, TotalTokens, TotalCost, LastUsed, LastError, ModelsJson, SnapshotAtUtc)
-    VALUES (${sqlEscape(p.provider)}, ${sqlEscape(p.displayName)}, ${sqlEscape(p.status)}, ${p.isHealthy ? 1 : 0}, ${p.requests}, ${p.errors}, ${p.inputTokens}, ${p.outputTokens}, ${p.cacheReadTokens}, ${p.cacheWriteTokens}, ${p.totalTokens}, ${p.totalCost.toFixed(6)}, ${sqlEscape(p.lastUsed)}, ${sqlEscape(p.lastError)}, ${sqlEscape(modelsJson)}, SYSUTCDATETIME());`;
-});
+    INSERT (Provider, DisplayName, Status, IsHealthy, Requests, Errors, InputTokens, OutputTokens, CacheReadTokens, CacheWriteTokens, TotalTokens, TotalCost, LastUsed, LastError, ModelsJson, SnapshotAtUtc, RangeKey, RangeStartUtc, RangeEndUtc)
+    VALUES (${sqlEscape(provider.provider)}, ${sqlEscape(provider.displayName)}, ${sqlEscape(provider.status)}, ${provider.isHealthy ? 1 : 0}, ${provider.requests}, ${provider.errors}, ${provider.inputTokens}, ${provider.outputTokens}, ${provider.cacheReadTokens}, ${provider.cacheWriteTokens}, ${provider.totalTokens}, ${provider.totalCost.toFixed(6)}, ${sqlEscape(provider.lastUsed)}, ${sqlEscape(provider.lastError)}, ${sqlEscape(modelsJson)}, SYSUTCDATETIME(), ${sqlEscape(range.key)}, ${sqlEscape(iso(range.start))}, ${sqlEscape(iso(range.end))});`);
+  }
+}
 
 const sql = statements.join('\n\n');
 const tempFile = path.join(os.tmpdir(), 'sync-provider-usage.sql');

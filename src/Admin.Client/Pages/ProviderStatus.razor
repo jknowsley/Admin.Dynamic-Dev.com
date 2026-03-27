@@ -7,7 +7,32 @@
 <PageTitle>Provider Status</PageTitle>
 
 <MudText Typo="Typo.h4" GutterBottom="true">AI Provider Status & Usage</MudText>
-<MudText Typo="Typo.body1" Class="mb-4">Live-ish view from OpenClaw session history for Claude, GPT, and Gemini.</MudText>
+<MudText Typo="Typo.body1" Class="mb-4">View provider health and usage for Today, Last 7 Days, or a custom date range.</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" md="3">
+            <MudSelect T="string" Label="Range" Value="@_selectedRange" ValueChanged="OnRangeChanged">
+                <MudSelectItem T="string" Value="@RangeToday">Today</MudSelectItem>
+                <MudSelectItem T="string" Value="@RangeLast7Days">Last 7 Days</MudSelectItem>
+                <MudSelectItem T="string" Value="@RangeDateRange">Date Range</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+
+        @if (_selectedRange == RangeDateRange)
+        {
+            <MudItem xs="12" md="3">
+                <MudDatePicker Label="Start Date" Date="@_startDate" DateChanged="OnStartDateChanged" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDatePicker Label="End Date" Date="@_endDate" DateChanged="OnEndDateChanged" />
+            </MudItem>
+            <MudItem xs="12" md="3" Class="d-flex align-end">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadProviders">Apply</MudButton>
+            </MudItem>
+        }
+    </MudGrid>
+</MudPaper>
 
 @if (_loading)
 {
@@ -95,20 +120,68 @@ else
 }
 
 @code {
+    private const string RangeToday = "today";
+    private const string RangeLast7Days = "last7days";
+    private const string RangeDateRange = "daterange";
+
     private List<ProviderUsageStats> _providers = new();
     private bool _loading = true;
     private string? _error;
+    private string _selectedRange = RangeToday;
+    private DateTime? _startDate = DateTime.Today;
+    private DateTime? _endDate = new DateTime(2026, 1, 1);
 
     protected override async Task OnInitializedAsync()
     {
+        _startDate = new DateTime(2026, 1, 1);
+        _endDate = DateTime.Today;
+        await LoadProviders();
+    }
+
+    private async Task OnRangeChanged(string value)
+    {
+        _selectedRange = value;
+        if (_selectedRange != RangeDateRange)
+            await LoadProviders();
+    }
+
+    private Task OnStartDateChanged(DateTime? value)
+    {
+        _startDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnEndDateChanged(DateTime? value)
+    {
+        _endDate = value;
+        return Task.CompletedTask;
+    }
+
+    private async Task LoadProviders()
+    {
+        _loading = true;
+        _error = null;
+
         try
         {
-            _providers = await Http.GetFromJsonAsync<List<ProviderUsageStats>>("api/provider-status") ?? new();
+            var url = $"api/provider-status?range={_selectedRange}";
+            if (_selectedRange == RangeDateRange)
+            {
+                if (!_startDate.HasValue || !_endDate.HasValue)
+                {
+                    _error = "Please select both a start and end date.";
+                    return;
+                }
+
+                var startUtc = DateTime.SpecifyKind(_startDate.Value.Date, DateTimeKind.Utc);
+                var endUtc = DateTime.SpecifyKind(_endDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+                url += $"&startUtc={Uri.EscapeDataString(startUtc.ToString("O"))}&endUtc={Uri.EscapeDataString(endUtc.ToString("O"))}";
+            }
+
+            _providers = await Http.GetFromJsonAsync<List<ProviderUsageStats>>(url) ?? new();
 
             if (_providers.Count == 0)
-            {
-                _error = "The API returned no provider rows. That usually means the server couldn't read the OpenClaw session history on the host.";
-            }
+                _error = "No provider usage snapshots were found for that range yet. Run the local sync again to populate it.";
         }
         catch (Exception ex)
         {

@@ -20,10 +20,35 @@ public class ProviderStatusController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ProviderUsageStats>>> Get()
+    public async Task<ActionResult<List<ProviderUsageStats>>> Get(
+        [FromQuery] string range = "today",
+        [FromQuery] DateTime? startUtc = null,
+        [FromQuery] DateTime? endUtc = null)
     {
-        var snapshots = await _context.ProviderUsageSnapshots
-            .AsNoTracking()
+        var normalizedRange = (range ?? "today").Trim().ToLowerInvariant();
+        if (normalizedRange != "today" && normalizedRange != "last7days" && normalizedRange != "daterange")
+            normalizedRange = "today";
+
+        var query = _context.ProviderUsageSnapshots.AsNoTracking().AsQueryable();
+
+        if (normalizedRange == "daterange")
+        {
+            if (!startUtc.HasValue || !endUtc.HasValue)
+                return BadRequest("Date range requires startUtc and endUtc.");
+
+            var start = DateTime.SpecifyKind(startUtc.Value, DateTimeKind.Utc);
+            var end = DateTime.SpecifyKind(endUtc.Value, DateTimeKind.Utc);
+
+            query = query.Where(p => p.RangeKey == "daterange"
+                && p.RangeStartUtc == start
+                && p.RangeEndUtc == end);
+        }
+        else
+        {
+            query = query.Where(p => p.RangeKey == normalizedRange);
+        }
+
+        var snapshots = await query
             .OrderBy(p => p.DisplayName)
             .ToListAsync();
 

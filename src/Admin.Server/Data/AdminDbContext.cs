@@ -68,8 +68,10 @@ public class AdminDbContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50).IsRequired();
             entity.Property(e => e.LastUsed).HasMaxLength(100);
             entity.Property(e => e.LastError).HasMaxLength(2000);
+            entity.Property(e => e.RangeKey).HasMaxLength(20).IsRequired();
             entity.Property(e => e.ModelsJson).HasColumnType("nvarchar(max)");
-            entity.HasIndex(e => e.Provider).IsUnique();
+            entity.HasIndex(e => new { e.Provider, e.RangeKey }).IsUnique();
+            entity.HasIndex(e => new { e.RangeStartUtc, e.RangeEndUtc });
             entity.HasIndex(e => e.SnapshotAtUtc);
         });
     }

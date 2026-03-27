@@ -19,4 +19,7 @@ public class ProviderUsageSnapshot
     public string? LastError { get; set; }
     public string ModelsJson { get; set; } = "[]";
     public DateTime SnapshotAtUtc { get; set; }
+    public string RangeKey { get; set; } = "today";
+    public DateTime RangeStartUtc { get; set; }
+    public DateTime RangeEndUtc { get; set; }
 }

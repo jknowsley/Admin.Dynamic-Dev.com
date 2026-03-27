@@ -1,11 +1,17 @@
 .provider-stats {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.35rem 1rem;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
-.provider-stats :deep(.mud-typography:nth-child(2n)) {
-    justify-self: end;
+.provider-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.provider-stat-row :deep(.mud-typography:last-child) {
     text-align: right;
+    margin-left: auto;
 }

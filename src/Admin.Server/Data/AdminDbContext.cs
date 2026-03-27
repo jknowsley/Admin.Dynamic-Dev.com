@@ -10,6 +10,7 @@ public class AdminDbContext : DbContext
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<ProviderUsageSnapshot> ProviderUsageSnapshots => Set<ProviderUsageSnapshot>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +57,20 @@ public class AdminDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.ProjectId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<ProviderUsageSnapshot>(entity =>
+        {
+            entity.ToTable("ProviderUsageSnapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Provider).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.DisplayName).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Status).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.LastUsed).HasMaxLength(100);
+            entity.Property(e => e.LastError).HasMaxLength(2000);
+            entity.Property(e => e.ModelsJson).HasColumnType("nvarchar(max)");
+            entity.HasIndex(e => e.Provider).IsUnique();
+            entity.HasIndex(e => e.SnapshotAtUtc);
         });
     }
 }

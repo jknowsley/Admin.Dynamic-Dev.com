@@ -1,5 +1,7 @@
 @page "/provider-status"
+@attribute [Authorize]
 @using Admin.Shared.Models
+@using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
 
 <PageTitle>Provider Status</PageTitle>

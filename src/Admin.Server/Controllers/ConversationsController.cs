@@ -19,22 +19,34 @@ public class ConversationsController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<List<Conversation>>> GetConversations(
+    public async Task<ActionResult<List<ConversationListItem>>> GetConversations(
         [FromQuery] int? projectId = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
         var query = _context.Conversations
+            .AsNoTracking()
             .Include(c => c.Project)
-            .OrderByDescending(c => c.Date)
             .AsQueryable();
             
         if (projectId.HasValue)
             query = query.Where(c => c.ProjectId == projectId.Value);
             
         return await query
+            .OrderByDescending(c => c.Date)
+            .ThenByDescending(c => c.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Select(c => new ConversationListItem
+            {
+                Id = c.Id,
+                ProjectId = c.ProjectId,
+                ProjectName = c.Project != null ? c.Project.Name : "Unknown",
+                Date = c.Date,
+                Summary = c.Summary,
+                MessageCount = c.MessageCount,
+                TokenCount = c.TokenCount
+            })
             .ToListAsync();
     }
     

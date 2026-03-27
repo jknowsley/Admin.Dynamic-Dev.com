@@ -52,7 +52,7 @@ else
                     </div>
                 </TitleContent>
                 <ChildContent>
-                    @foreach (var projectGroup in dateGroup.GroupBy(c => c.Project?.Name ?? "Unknown").OrderBy(g => g.Key))
+                    @foreach (var projectGroup in dateGroup.GroupBy(c => c.ProjectName ?? "Unknown").OrderBy(g => g.Key))
                     {
                         <MudPaper Class="pa-3 mb-2" Elevation="0" Style="background-color: var(--mud-palette-background-grey);">
                             <div class="d-flex align-center mb-2">
@@ -94,12 +94,24 @@ else
     }
 }
 
+@if (!_loading && _hasMore)
+{
+    <div class="d-flex justify-center mt-4 mb-6">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="LoadMore">
+            Load More
+        </MudButton>
+    </div>
+}
+
 @code {
-    private List<Conversation>? _conversations;
+    private List<ConversationListItem>? _conversations;
     private List<Project>? _projects;
     private int? _selectedProjectId;
     private bool _loading = true;
-    private IEnumerable<IGrouping<DateOnly, Conversation>> _groupedConversations = Enumerable.Empty<IGrouping<DateOnly, Conversation>>();
+    private bool _hasMore;
+    private int _page = 1;
+    private const int PageSize = 30;
+    private IEnumerable<IGrouping<DateOnly, ConversationListItem>> _groupedConversations = Enumerable.Empty<IGrouping<DateOnly, ConversationListItem>>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,13 +131,15 @@ else
         _loading = true;
         try
         {
-            var url = "api/conversations?pageSize=100";
+            _page = 1;
+            var url = $"api/conversations?page=1&pageSize={PageSize}";
             if (_selectedProjectId.HasValue)
                 url += $"&projectId={_selectedProjectId}";
                 
-            _conversations = await Http.GetFromJsonAsync<List<Conversation>>(url);
+            _conversations = await Http.GetFromJsonAsync<List<ConversationListItem>>(url) ?? new();
+            _hasMore = _conversations.Count == PageSize;
             
-            _groupedConversations = (_conversations ?? new List<Conversation>())
+            _groupedConversations = _conversations
                 .GroupBy(c => c.Date)
                 .OrderByDescending(g => g.Key);
         }
@@ -143,6 +157,42 @@ else
     {
         _selectedProjectId = null;
         await LoadConversations();
+    }
+
+    private async Task LoadMore()
+    {
+        if (_loading || !_hasMore)
+            return;
+
+        _loading = true;
+        try
+        {
+            var nextPage = _page + 1;
+            var url = $"api/conversations?page={nextPage}&pageSize={PageSize}";
+            if (_selectedProjectId.HasValue)
+                url += $"&projectId={_selectedProjectId}";
+
+            var more = await Http.GetFromJsonAsync<List<ConversationListItem>>(url) ?? new();
+            if (more.Any())
+            {
+                _page = nextPage;
+                _conversations ??= new();
+                _conversations.AddRange(more);
+                _groupedConversations = _conversations
+                    .GroupBy(c => c.Date)
+                    .OrderByDescending(g => g.Key);
+            }
+
+            _hasMore = more.Count == PageSize;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading more conversations: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private void NavigateToConversation(int id)

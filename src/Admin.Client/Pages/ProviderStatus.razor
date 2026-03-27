@@ -1,0 +1,104 @@
+@page "/provider-status"
+@using Admin.Shared.Models
+@inject HttpClient Http
+
+<PageTitle>Provider Status</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">AI Provider Status & Usage</MudText>
+<MudText Typo="Typo.body1" Class="mb-4">Live-ish view from OpenClaw session history for Claude, GPT, and Gemini.</MudText>
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <MudAlert Severity="Severity.Error">@_error</MudAlert>
+}
+else if (_providers.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No provider usage data found yet.</MudAlert>
+}
+else
+{
+    <MudGrid>
+        @foreach (var provider in _providers)
+        {
+            <MudItem xs="12" md="4">
+                <MudCard Class="pa-2">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@provider.DisplayName</MudText>
+                            <MudChip T="string" Color="@(provider.IsHealthy ? Color.Success : Color.Warning)" Variant="Variant.Filled" Size="Size.Small">
+                                @provider.Status
+                            </MudChip>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex flex-column ga-1">
+                            <MudText Typo="Typo.body2">Requests: @provider.Requests</MudText>
+                            <MudText Typo="Typo.body2">Errors: @provider.Errors</MudText>
+                            <MudText Typo="Typo.body2">Total Tokens: @FormatNumber(provider.TotalTokens)</MudText>
+                            <MudText Typo="Typo.body2">Input Tokens: @FormatNumber(provider.InputTokens)</MudText>
+                            <MudText Typo="Typo.body2">Output Tokens: @FormatNumber(provider.OutputTokens)</MudText>
+                            <MudText Typo="Typo.body2">Cache Read: @FormatNumber(provider.CacheReadTokens)</MudText>
+                            <MudText Typo="Typo.body2">Cost: @provider.TotalCost.ToString("C")</MudText>
+                            <MudText Typo="Typo.body2">Last Used: @FormatTimestamp(provider.LastUsed)</MudText>
+                        </div>
+
+                        @if (provider.Models.Any())
+                        {
+                            <MudDivider Class="my-2" />
+                            <MudText Typo="Typo.subtitle2">Models</MudText>
+                            @foreach (var model in provider.Models.Take(3))
+                            {
+                                <div class="d-flex justify-space-between">
+                                    <MudText Typo="Typo.body2">@model.Name</MudText>
+                                    <MudText Typo="Typo.body2">@model.Requests</MudText>
+                                </div>
+                            }
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(provider.LastError))
+                        {
+                            <MudDivider Class="my-2" />
+                            <MudText Typo="Typo.subtitle2">Last Error</MudText>
+                            <MudText Typo="Typo.caption">@provider.LastError</MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private List<ProviderUsageStats> _providers = new();
+    private bool _loading = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _providers = await Http.GetFromJsonAsync<List<ProviderUsageStats>>("api/provider-status") ?? new();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private static string FormatNumber(long value) => value.ToString("N0");
+
+    private static string FormatTimestamp(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "—";
+        return DateTime.TryParse(value, out var dt) ? dt.ToLocalTime().ToString("g") : value;
+    }
+}

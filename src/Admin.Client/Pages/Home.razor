@@ -66,6 +66,25 @@
                     </MudCardActions>
                 </MudCard>
             </MudItem>
+
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">AI Provider Status</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Memory" Color="Color.Info" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText>View Claude, GPT, and Gemini status, usage, tokens, and recent errors.</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="provider-status">Open</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
         </MudGrid>
     </Authorized>
     <NotAuthorized>

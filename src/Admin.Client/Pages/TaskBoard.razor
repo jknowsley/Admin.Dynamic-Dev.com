@@ -18,6 +18,7 @@
                 }
             }
         </MudSelect>
+        <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="LoadTasks" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="ShowCreateDialog">New Task</MudButton>
     </div>
 </div>
@@ -163,6 +164,8 @@ else
     </DialogActions>
 </MudDialog>
 
+@implements IDisposable
+
 @code {
     private List<TaskItem>? _tasks;
     private List<Project>? _projects;
@@ -172,6 +175,7 @@ else
     private TaskItem _editTask = new();
     private int? _filterProjectId;
     private DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+    private System.Threading.Timer? _refreshTimer;
 
     private readonly string[] _columns = Admin.Shared.Models.TaskStatus.All;
 
@@ -179,6 +183,20 @@ else
     {
         _projects = await Http.GetFromJsonAsync<List<Project>>("api/projects");
         await LoadTasks();
+
+        _refreshTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await LoadTasks();
+                StateHasChanged();
+            });
+        }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    public void Dispose()
+    {
+        _refreshTimer?.Dispose();
     }
 
     private async Task LoadTasks()

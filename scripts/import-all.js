@@ -1,20 +1,20 @@
 #!/usr/bin/env node
-// Discord Historical Message Import Script
-// Fetches all messages from Discord channels and imports into Admin Panel database
-// Usage: node import-all.js
+// Discord Incremental Message Import Script
+// Only fetches new messages since last import, upserts today's conversation
+// Usage: node import-all.js <BOT_TOKEN>
 
 const https = require('https');
-const http = require('http');
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
-// Discord Bot Token (from OpenClaw config)
 const BOT_TOKEN = process.argv[2] || process.env.DISCORD_BOT_TOKEN;
 if (!BOT_TOKEN) {
     console.error('Usage: node import-all.js <BOT_TOKEN>');
-    console.error('Or set DISCORD_BOT_TOKEN env var');
     process.exit(1);
 }
 
-// Channel to Project mapping
 const CHANNELS = {
     '1476208136061718660': { name: 'MINTED-CORE', projectId: 2 },
     '1476208017191075945': { name: 'Burkson', projectId: 4 },
@@ -24,40 +24,49 @@ const CHANNELS = {
     '1486436449829261412': { name: 'Admin Panel', projectId: 11 },
 };
 
-// Admin Panel API
-const API_BASE = 'http://192.168.1.195:5002';
+const STATE_FILE = path.join(__dirname, 'import-state.json');
+const SQLCMD = '"C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\SQLCMD.EXE"';
+const DB = { server: 'Dynamicdev.database.windows.net', database: 'Dynamicdev', user: 'sysdba', password: 'dB2020!@#$' };
 
-// Fetch messages from Discord channel
-async function fetchMessages(channelId, before = null) {
+// --- State management ---
+
+function loadState() {
+    try {
+        return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    } catch {
+        return {};
+    }
+}
+
+function saveState(state) {
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+}
+
+// --- Discord API ---
+
+function fetchMessages(channelId, after = null, before = null) {
     return new Promise((resolve, reject) => {
         let url = `/api/v10/channels/${channelId}/messages?limit=100`;
+        if (after) url += `&after=${after}`;
         if (before) url += `&before=${before}`;
 
-        const options = {
+        const req = https.request({
             hostname: 'discord.com',
             path: url,
             method: 'GET',
-            headers: {
-                'Authorization': `Bot ${BOT_TOKEN}`,
-                'Content-Type': 'application/json'
-            }
-        };
-
-        const req = https.request(options, (res) => {
+            headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' }
+        }, (res) => {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => {
                 if (res.statusCode === 200) {
                     resolve(JSON.parse(data));
                 } else if (res.statusCode === 429) {
-                    // Rate limited
                     const retryAfter = JSON.parse(data).retry_after || 1;
                     console.log(`  Rate limited, waiting ${retryAfter}s...`);
-                    setTimeout(() => {
-                        fetchMessages(channelId, before).then(resolve).catch(reject);
-                    }, retryAfter * 1000);
+                    setTimeout(() => fetchMessages(channelId, after, before).then(resolve).catch(reject), retryAfter * 1000);
                 } else {
-                    reject(new Error(`Discord API error ${res.statusCode}: ${data}`));
+                    reject(new Error(`Discord API error ${res.statusCode}: ${data.substring(0, 200)}`));
                 }
             });
         });
@@ -66,67 +75,55 @@ async function fetchMessages(channelId, before = null) {
     });
 }
 
-// Fetch ALL messages from a channel (paginating back)
-async function fetchAllMessages(channelId, channelName) {
+async function fetchNewMessages(channelId, channelName, afterId) {
     const allMessages = [];
-    let before = null;
+    let after = afterId;
     let page = 0;
 
     while (true) {
         page++;
-        const messages = await fetchMessages(channelId, before);
-
+        const messages = await fetchMessages(channelId, after, null);
         if (!messages || messages.length === 0) break;
 
+        // Discord returns newest first when using 'after', so sort ascending
+        messages.sort((a, b) => BigInt(a.id) < BigInt(b.id) ? -1 : 1);
         allMessages.push(...messages);
-        before = messages[messages.length - 1].id;
+        after = messages[messages.length - 1].id;
 
-        process.stdout.write(`  ${channelName}: ${allMessages.length} messages (page ${page})...\r`);
-
-        // Small delay to avoid rate limits
+        process.stdout.write(`  ${channelName}: ${allMessages.length} new messages (page ${page})...\r`);
         await new Promise(r => setTimeout(r, 500));
-
-        if (messages.length < 100) break; // Last page
+        if (messages.length < 100) break;
     }
 
-    console.log(`  ${channelName}: ${allMessages.length} total messages`);
+    if (allMessages.length > 0) {
+        console.log(`  ${channelName}: ${allMessages.length} new messages fetched`);
+    } else {
+        console.log(`  ${channelName}: no new messages`);
+    }
     return allMessages;
 }
 
-// Group messages by UTC date
+// --- Formatting ---
+
 function groupByDate(messages) {
     const groups = {};
-
-    // Sort chronologically (oldest first)
     messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
     for (const msg of messages) {
-        const date = msg.timestamp.split('T')[0]; // YYYY-MM-DD
+        const date = msg.timestamp.split('T')[0];
         if (!groups[date]) groups[date] = [];
         groups[date].push(msg);
     }
-
     return groups;
 }
 
-// Format messages as conversation content
 function formatConversation(messages) {
     const lines = [];
     for (const msg of messages) {
-        // Skip empty messages (image-only, embeds-only)
-        if (!msg.content && msg.attachments?.length === 0) continue;
-
+        if (!msg.content && (!msg.attachments || msg.attachments.length === 0)) continue;
         const author = msg.author.bot ? '**Fred:**' : `**Jonathan:**`;
         let content = msg.content || '';
-
-        // Skip bot noise
         if (msg.author.bot && content.length < 30 && /^(Let me |Now let me |Now |Good|Build )/.test(content)) continue;
-
-        if (content) {
-            lines.push(`${author} ${content}`);
-        }
-
-        // Note attachments
+        if (content) lines.push(`${author} ${content}`);
         if (msg.attachments && msg.attachments.length > 0) {
             const types = msg.attachments.map(a => a.content_type?.split('/')[0] || 'file');
             lines.push(`_(${types.join(', ')} attached)_`);
@@ -135,43 +132,23 @@ function formatConversation(messages) {
     return lines.join('\n\n');
 }
 
-// Generate summary from conversation
 function generateSummary(messages, projectName) {
     const userMessages = messages.filter(m => !m.author.bot && m.content);
     const topics = userMessages.slice(0, 5).map(m => m.content.substring(0, 80)).join('; ');
     return `${projectName}: ${topics}`.substring(0, 200);
 }
 
-// Import a conversation via the Admin Panel API
-async function importConversation(projectId, date, content, summary, messageCount) {
-    return new Promise((resolve, reject) => {
-        const body = JSON.stringify({
-            projectName: null,
-            discordChannelId: null,
-            date: date,
-            content: content.substring(0, 65000), // SQL nvarchar(max) but be safe
-            summary: summary,
-            messageCount: messageCount,
-            tokenCount: Math.round(content.length / 4)
-        });
+// --- SQL ---
 
-        // Direct SQL insert since API requires auth
-        // We'll output SQL instead
-        resolve(true);
-    });
+function escapeSql(str) {
+    return str.replace(/'/g, "''");
 }
 
-// Execute SQL via sqlcmd using temp file (avoids command line length limits)
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 function executeSql(sql) {
-    const sqlcmd = '"C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\SQLCMD.EXE"';
     const tmpFile = path.join(os.tmpdir(), 'import-sql-tmp.sql');
     try {
         fs.writeFileSync(tmpFile, sql, 'utf8');
-        execSync(`${sqlcmd} -S Dynamicdev.database.windows.net -d Dynamicdev -U sysdba -P "dB2020!@#$" -C -i "${tmpFile}"`, {
+        execSync(`${SQLCMD} -S ${DB.server} -d ${DB.database} -U ${DB.user} -P "${DB.password}" -C -i "${tmpFile}"`, {
             stdio: 'pipe',
             timeout: 60000
         });
@@ -180,68 +157,94 @@ function executeSql(sql) {
         console.error(`  SQL Error: ${e.message.substring(0, 200)}`);
         return false;
     } finally {
-        try { fs.unlinkSync(tmpFile); } catch(e) {}
+        try { fs.unlinkSync(tmpFile); } catch {}
     }
 }
 
-// Escape SQL string
-function escapeSql(str) {
-    return str.replace(/'/g, "''");
-}
+// --- Main ---
 
-// Main
 async function main() {
-    console.log('=== Discord Historical Import ===\n');
+    console.log('=== Discord Incremental Import ===\n');
 
-    // Don't clear - use upsert logic instead
-    console.log('Starting import (upsert mode - will not delete existing data)...');
+    const state = loadState();
+    const today = new Date().toISOString().split('T')[0];
+    let totalNew = 0;
+    let totalUpserted = 0;
 
     for (const [channelId, channel] of Object.entries(CHANNELS)) {
         console.log(`\nImporting #${channel.name}...`);
 
         try {
-            const messages = await fetchAllMessages(channelId, channel.name);
-            if (messages.length === 0) {
-                console.log(`  No messages found`);
-                continue;
-            }
+            const lastMessageId = state[channelId]?.lastMessageId || null;
+            const messages = await fetchNewMessages(channelId, channel.name, lastMessageId);
+
+            if (messages.length === 0) continue;
+            totalNew += messages.length;
+
+            // Track the newest message ID for next run
+            const newestId = messages.reduce((max, m) => BigInt(m.id) > BigInt(max) ? m.id : max, messages[0].id);
+            if (!state[channelId]) state[channelId] = {};
+            state[channelId].lastMessageId = newestId;
+            state[channelId].lastImport = new Date().toISOString();
 
             const dateGroups = groupByDate(messages);
             const dates = Object.keys(dateGroups).sort();
-
-            console.log(`  ${dates.length} days of conversations`);
 
             for (const date of dates) {
                 const dayMessages = dateGroups[date];
                 const content = formatConversation(dayMessages);
                 const summary = generateSummary(dayMessages, channel.name);
 
-                if (content.length < 10) continue; // Skip near-empty days
+                if (content.length < 10) continue;
 
-                // Truncate content for SQL safety (max ~8000 chars for -Q parameter)
-                const truncatedContent = content.length > 7000
-                    ? content.substring(0, 7000) + '\n\n... (truncated)'
+                const truncatedContent = content.length > 65000
+                    ? content.substring(0, 65000) + '\n\n... (truncated)'
                     : content;
 
-                const sql = `INSERT INTO [dbo].[Conversations] ([ProjectId], [Date], [Content], [Summary], [MessageCount], [TokenCount]) SELECT ${channel.projectId}, '${date}', '${escapeSql(truncatedContent)}', '${escapeSql(summary.substring(0, 200))}', ${dayMessages.length}, ${Math.round(content.length / 4)} WHERE NOT EXISTS (SELECT 1 FROM [dbo].[Conversations] WHERE ProjectId=${channel.projectId} AND Date='${date}')`;
+                const isToday = date === today;
+
+                let sql;
+                if (isToday) {
+                    // Upsert today: update content by appending new messages, or insert if new
+                    sql = `IF EXISTS (SELECT 1 FROM [dbo].[Conversations] WHERE ProjectId=${channel.projectId} AND [Date]='${date}')
+BEGIN
+    UPDATE [dbo].[Conversations]
+    SET Content = Content + CHAR(10) + CHAR(10) + N'${escapeSql(truncatedContent)}',
+        Summary = N'${escapeSql(summary.substring(0, 200))}',
+        MessageCount = MessageCount + ${dayMessages.length},
+        TokenCount = TokenCount + ${Math.round(content.length / 4)},
+        UpdatedAt = GETUTCDATE()
+    WHERE ProjectId=${channel.projectId} AND [Date]='${date}'
+END
+ELSE
+BEGIN
+    INSERT INTO [dbo].[Conversations] ([ProjectId], [Date], [Content], [Summary], [MessageCount], [TokenCount])
+    VALUES (${channel.projectId}, '${date}', N'${escapeSql(truncatedContent)}', N'${escapeSql(summary.substring(0, 200))}', ${dayMessages.length}, ${Math.round(content.length / 4)})
+END`;
+                } else {
+                    // Past days: insert only if not exists
+                    sql = `INSERT INTO [dbo].[Conversations] ([ProjectId], [Date], [Content], [Summary], [MessageCount], [TokenCount])
+SELECT ${channel.projectId}, '${date}', N'${escapeSql(truncatedContent)}', N'${escapeSql(summary.substring(0, 200))}', ${dayMessages.length}, ${Math.round(content.length / 4)}
+WHERE NOT EXISTS (SELECT 1 FROM [dbo].[Conversations] WHERE ProjectId=${channel.projectId} AND [Date]='${date}')`;
+                }
 
                 if (executeSql(sql)) {
-                    process.stdout.write(`  ${date}: ${dayMessages.length} msgs (${content.length} chars) ✓\r`);
+                    totalUpserted++;
+                    process.stdout.write(`  ${date}: ${dayMessages.length} msgs (${content.length} chars) ${isToday ? '↻' : '✓'}\r`);
                 } else {
-                    console.log(`  ${date}: ${dayMessages.length} msgs - INSERT FAILED`);
+                    console.log(`  ${date}: ${dayMessages.length} msgs - FAILED`);
                 }
             }
 
-            console.log(`  Done! ${dates.length} days imported.`);
+            console.log(`  Done! ${dates.length} days processed.`);
         } catch (e) {
             console.error(`  Error: ${e.message}`);
         }
     }
 
-    console.log('\n=== Import Complete ===');
-
-    // Show final counts
-    executeSql("SELECT p.Name, COUNT(*) as Days, SUM(c.MessageCount) as TotalMsgs FROM [dbo].[Conversations] c JOIN [dbo].[Projects] p ON c.ProjectId = p.Id GROUP BY p.Name ORDER BY p.Name");
+    saveState(state);
+    console.log(`\n=== Import Complete ===`);
+    console.log(`New messages: ${totalNew} | Days upserted: ${totalUpserted}`);
 }
 
 main().catch(console.error);
